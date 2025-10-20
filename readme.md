@@ -12,20 +12,20 @@ The easy approach is to use a smart IR controller (for example, Broadlink) and r
 
 ## Reversing the controller
 I started by disassembling the controller and examining the circuit. This is what I found.
-<p align="center">
-	<figure style="display:inline-block; margin:0 12px; text-align:center;">
-	<img src="original%20controller%20case.jpg" alt="Controller case" height="200" />
-	<figcaption>Controller case</figcaption>
-	</figure>
-	<figure style="display:inline-block; margin:0 12px; text-align:center;">
-	<img src="original%20controller%20front.jpg" alt="Controller front" height="200" />
-	<figcaption>Controller front</figcaption>
-	</figure>
-	<figure style="display:inline-block; margin:0 12px; text-align:center;">
-	<img src="original%20controller%20back.jpg" alt="Controller back" height="200" />
-	<figcaption>Controller back</figcaption>
-	</figure>
-</p>
+<div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: nowrap; margin: 2rem 0;">
+    <figure style="margin: 0; text-align: center; flex: 1;">
+        <img src="original%20controller%20case.jpg" alt="Controller case" style="max-width: 100%; height: 200px; object-fit: contain;" />
+        <figcaption>Controller case</figcaption>
+    </figure>
+    <figure style="margin: 0; text-align: center; flex: 1;">
+        <img src="original%20controller%20front.jpg" alt="Controller front" style="max-width: 100%; height: 200px; object-fit: contain;" />
+        <figcaption>Controller front</figcaption>
+    </figure>
+    <figure style="margin: 0; text-align: center; flex: 1;">
+        <img src="original%20controller%20back.jpg" alt="Controller back" style="max-width: 100%; height: 200px; object-fit: contain;" />
+        <figcaption>Controller back</figcaption>
+    </figure>
+</div>
 
 
 - It has four wires and two LEDs (green and red) that indicate state.
@@ -58,12 +58,12 @@ Instead, I used a simple voltage divider with 10 kΩ and 3.3 kΩ resistors. This
 ### Controll
 The simplest way to emulate the pull-down switch is with a transistor that connects the line to ground when activated. I used a 2N3904 NPN transistor: collector to the red wire, emitter to GND, and the base connected to a GPIO pin through a 1 kΩ resistor to protect the GPIO pin.
 
-<p align="center">
-	<figure style="display:inline-block; margin:0 12px; text-align:center;">
-	<img src="esp%20circuit%20diagram.jpg" alt="ESP circuit diagram" width="600" />
-	<figcaption>ESP wiring (conceptual)</figcaption>
-	</figure>
-</p>
+<div style="display: grid; grid-template-columns: minmax(auto, 800px); justify-content: center; margin: 2rem 0;">
+  <figure style="margin: 0; text-align: center;">
+    <img src="esp%20circuit%20diagram.jpg" alt="ESP circuit diagram" style="max-width: 100%; height: auto;" />
+    <figcaption>ESP wiring (conceptual)</figcaption>
+  </figure>
+</div>
 
 ## ESPHome configuration
 I implemented the transistor as an internal switch (no direct user control). A template button simulates the original controller's button press by turning the internal switch on for 200ms, allowing current to flow into the transistor base and actuating the pull-down. The button entity is exposed to Home Assistant to mimic the physical controller button.
@@ -74,12 +74,12 @@ A template switch serves as the primary user interface for the damper. Its state
 
 [Full ESPHome builder configuration yaml](esphome-damper.yaml)
 
-<p align="center">
-    <figure style="display:inline-block; margin:0 12px; text-align:center;">
-    <img src="ha_device.png" alt="Home Assistant" height="400" />
+<div style="display: grid; grid-template-columns: minmax(auto, 600px); justify-content: center; margin: 2rem 0;">
+  <figure style="margin: 0; text-align: center;">
+    <img src="ha_device.png" alt="Home Assistant" style="max-width: 100%; height: auto; max-height: 400px;" />
     <figcaption>Home Assistant view</figcaption>
-    </figure>
-</p>
+  </figure>
+</div>
 
 ## TODO
 * Replace the ESP32-S3 with a smaller ESP module (like the ESP-Super-Mini), use a compact buck converter, and fit everything into a small tidy case. This will require using an external LED indicator instead of the ESP32-S3's built-in LED.
