@@ -113,8 +113,8 @@ switch:
     name: "Damper"
     id: damper_state_switch
     icon: "mdi:hvac"
-    # optimistic: false means the switch won't change state until it receives confirmation
-    # from the binary sensor that the physical damper state has changed
+    # optimistic: false means the switch won't update its state until the sensor confirms the change
+    # The actual state is handled by the template lambda that watches the sensor
     optimistic: false
     # The switch starts in OFF state on boot, but this doesn't matter because:
     # 1. The GPIO binary sensor reads the actual damper state immediately on boot
@@ -124,14 +124,21 @@ switch:
     # assumed_state: false indicates that the switch always knows its true state
     # because it's continuously updated by the physical sensor
     assumed_state: false
+    # This lambda continuously syncs the switch state with the physical sensor
     lambda: |-
       return id(damper_state_sensor).state;
-    on_turn_on:
-      - lambda: |-
-          id(damper_state_switch).set_icon("mdi:hvac");
-    on_turn_off:
-      - lambda: |-
-          id(damper_state_switch).set_icon("mdi:hvac-off");
+    # on_state triggers whenever the sensor changes, updating the icon to match reality
+    # don't use on_turn_on/on_turn_off because those only trigger on user actions
+    # Changing the icon isn't supported by esphome :(
+    #on_state:
+      # - lambda: |-
+      #     if (x) {  // x is the current state of the switch
+      #       ESP_LOGD("icon", "icon on");
+      #       id(damper_state_switch).set_icon("mdi:hvac");
+      #     } else {
+      #       ESP_LOGD("icon", "icon off");
+      #       id(damper_state_switch).set_icon("mdi:hvac-off");
+      #     }
     turn_on_action:
       - if:
           condition:
