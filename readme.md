@@ -12,19 +12,19 @@ The easy approach is to use a smart IR controller (for example, Broadlink) and r
 
 ## Reversing the controller
 I started by disassembling the controller and examining the circuit. This is what I found.
-<div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: nowrap; margin: 2rem 0;">
-    <figure style="margin: 0; text-align: center; flex: 1;">
-        <img src="original%20controller%20case.jpg" alt="Controller case" style="max-width: 100%; height: 200px; object-fit: contain;" />
-        <figcaption>Controller case</figcaption>
-    </figure>
-    <figure style="margin: 0; text-align: center; flex: 1;">
-        <img src="original%20controller%20front.jpg" alt="Controller front" style="max-width: 100%; height: 200px; object-fit: contain;" />
-        <figcaption>Controller front</figcaption>
-    </figure>
-    <figure style="margin: 0; text-align: center; flex: 1;">
-        <img src="original%20controller%20back.jpg" alt="Controller back" style="max-width: 100%; height: 200px; object-fit: contain;" />
-        <figcaption>Controller back</figcaption>
-    </figure>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; align-items: start; justify-items: center;">
+  <figure style="margin: 0; text-align: center; display:flex; flex-direction:column; align-items:center;">
+    <img src="original%20controller%20case.jpg" alt="Controller case" style="max-width: 100%; height: 200px; object-fit: contain; display:block;" />
+    <figcaption style="margin-top: 0.5rem;">Controller case</figcaption>
+  </figure>
+  <figure style="margin: 0; text-align: center; display:flex; flex-direction:column; align-items:center;">
+    <img src="original%20controller%20front.jpg" alt="Controller front" style="max-width: 100%; height: 200px; object-fit: contain; display:block;" />
+    <figcaption style="margin-top: 0.5rem;">Controller front</figcaption>
+  </figure>
+  <figure style="margin: 0; text-align: center; display:flex; flex-direction:column; align-items:center;">
+    <img src="original%20controller%20back.jpg" alt="Controller back" style="max-width: 100%; height: 200px; object-fit: contain; display:block;" />
+    <figcaption style="margin-top: 0.5rem;">Controller back</figcaption>
+  </figure>
 </div>
 
 
