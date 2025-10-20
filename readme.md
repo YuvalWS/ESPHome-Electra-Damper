@@ -12,21 +12,23 @@ The easy approach is to use a smart IR controller (for example, Broadlink) and r
 
 ## Reversing the controller
 I started by disassembling the controller and examining the circuit. This is what I found.
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; align-items: start; justify-items: center;">
-  <figure style="margin: 0; text-align: center; display:flex; flex-direction:column; align-items:center;">
-    <img src="original%20controller%20case.jpg" alt="Controller case" style="max-width: 100%; height: 200px; object-fit: contain; display:block;" />
-    <figcaption style="margin-top: 0.5rem;">Controller case</figcaption>
-  </figure>
-  <figure style="margin: 0; text-align: center; display:flex; flex-direction:column; align-items:center;">
-    <img src="original%20controller%20front.jpg" alt="Controller front" style="max-width: 100%; height: 200px; object-fit: contain; display:block;" />
-    <figcaption style="margin-top: 0.5rem;">Controller front</figcaption>
-  </figure>
-  <figure style="margin: 0; text-align: center; display:flex; flex-direction:column; align-items:center;">
-    <img src="original%20controller%20back.jpg" alt="Controller back" style="max-width: 100%; height: 200px; object-fit: contain; display:block;" />
-    <figcaption style="margin-top: 0.5rem;">Controller back</figcaption>
-  </figure>
-</div>
 
+<table>
+  <tr>
+    <td align="center">
+      <img src="original%20controller%20case.jpg" alt="Controller case" height="200" />
+      <div>Controller case</div>
+    </td>
+    <td align="center">
+      <img src="original%20controller%20front.jpg" alt="Controller front" height="200" />
+      <div>Controller front</div>
+    </td>
+    <td align="center">
+      <img src="original%20controller%20back.jpg" alt="Controller back" height="200" />
+      <div>Controller back</div>
+    </td>
+  </tr>
+</table>
 
 - It has four wires and two LEDs (green and red) that indicate state.
 - It has a physical toggle button, which is great because I don't have to reverse-engineer the IR protocol - I can just emulate the button press.
