@@ -42,13 +42,15 @@ I didn't have enough knowledge to inspect the circuit further, so I turned to th
 - The red wire measured ≈5 V at idle and briefly dropped to about 1–2 V when the button was pressed. I looked this up and determined it behaves like an active-low (pull-down) control line.
 ### Reversing summary
 
-- Yellow: VCC (12 V)
-- Green: GND
-- Black: state (≈2.5 V when open, ≈12 V when closed)
-- Red: control (active-low, ≈5 V idle)
+| Wire   | Function                                    |
+|--------|---------------------------------------------|
+| Yellow | VCC (12 V)                                  |
+| Green  | GND                                         |
+| Black  | State (≈2.5 V when open, ≈12 V when closed) |
+| Red    | Control (active-low, ≈5 V idle)             |
 
 ## Building the smart damper
-I decided to use an ESP32 board because it has a beginner-friendly workflow (ESPHome) and an easy-to-use Home Assistant integration.
+I decided to use an ESP32 board because it has a beginner-friendly workflow (ESPHome with ESPHome Builder) and an easy-to-use Home Assistant integration.
 ### VCC
 The original controller uses a 12 V input, but ESP32 boards expect 5 V or 3.3 V. I used a DC buck converter to step the voltage down.
 
@@ -57,7 +59,7 @@ The state voltage presented a challenge because ESP GPIO pins are limited to 3.3
 
 Instead, I used a simple voltage divider with 10 kΩ and 3.3 kΩ resistors. This scales the ~2.5–12 V range down to roughly 0.6–3.0 V, which is safe for the ESP. This range is prefect for the default GPIO LOW\HIGH detection.
 
-### Controll
+### Control
 The simplest way to emulate the pull-down switch is with a transistor that connects the line to ground when activated. I used a 2N3904 NPN transistor: collector to the red wire, emitter to GND, and the base connected to a GPIO pin through a 1 kΩ resistor to protect the GPIO pin.
 
 <div style="display: grid; grid-template-columns: minmax(auto, 800px); justify-content: center; margin: 2rem 0;">
@@ -74,7 +76,7 @@ A sensor reports the damper state; this is also reflected physically by the buil
 
 A template switch serves as the primary user interface for the damper. Its state is derived from the sensor so it reliably represents the actual damper position, and toggling the switch triggers the template button to change the damper state.
 
-[Full ESPHome builder configuration yaml](esphome-damper.yaml)
+[Full ESPHome builder configuration yaml](damper.yaml)
 
 <div style="display: grid; grid-template-columns: minmax(auto, 600px); justify-content: center; margin: 2rem 0;">
   <figure style="margin: 0; text-align: center;">
