@@ -10,22 +10,23 @@ The easy approach is to use a smart IR controller (for example, Broadlink) and r
 3. It requires a permanent power source.
 4. It has no feedback - if something interrupts the line of sight, I won't know whether the command worked.
 
+## Reversing the controller
+I started by disassembling the controller and examining the circuit. This is what I found.
 <p align="center">
 	<figure style="display:inline-block; margin:0 12px; text-align:center;">
-	<img src="original%20controller%20case.jpg" alt="Controller case" width="300" />
+	<img src="original%20controller%20case.jpg" alt="Controller case" height="200" />
 	<figcaption>Controller case</figcaption>
 	</figure>
 	<figure style="display:inline-block; margin:0 12px; text-align:center;">
-	<img src="original%20controller%20front.jpg" alt="Controller front" width="300" />
+	<img src="original%20controller%20front.jpg" alt="Controller front" height="200" />
 	<figcaption>Controller front</figcaption>
 	</figure>
 	<figure style="display:inline-block; margin:0 12px; text-align:center;">
-	<img src="original%20controller%20back.jpg" alt="Controller back" width="300" />
+	<img src="original%20controller%20back.jpg" alt="Controller back" height="200" />
 	<figcaption>Controller back</figcaption>
 	</figure>
 </p>
 
-I started by disassembling the controller and examining the circuit. This is what I found.
 
 - It has four wires and two LEDs (green and red) that indicate state.
 - It has a physical toggle button, which is great because I don't have to reverse-engineer the IR protocol - I can just emulate the button press.
@@ -37,7 +38,6 @@ I didn't have enough knowledge to inspect the circuit further, so I turned to th
 - There were two other wires. I assumed one was a state/input line and the other was the control line.
 - The black wire measured ≈12 V at idle and dropped to ≈2.5 V when I pressed the button to open the damper, each press changes the voltage again - this is the state line.
 - The red wire measured ≈5 V at idle and briefly dropped to about 1–2 V when the button was pressed. I looked this up and determined it behaves like an active-low (pull-down) control line.
-### Reversing Summary
 ### Reversing summary
 
 - Yellow: VCC (12 V)
@@ -55,16 +55,31 @@ The state voltage presented a challenge because ESP GPIO pins are limited to 3.3
 
 Instead, I used a simple voltage divider with 10 kΩ and 3.3 kΩ resistors. This scales the ~2.5–12 V range down to roughly 0.6–3.0 V, which is safe for the ESP. This range is prefect for the default GPIO LOW\HIGH detection.
 
-### controll
+### Controll
 The simplest way to emulate the pull-down switch is with a transistor that connects the line to ground when activated. I used a 2N3904 NPN transistor: collector to the red wire, emitter to GND, and the base connected to a GPIO pin through a 1 kΩ resistor to protect the GPIO pin.
 
 <p align="center">
 	<figure style="display:inline-block; margin:0 12px; text-align:center;">
-	<img src="esp%20circuit%20diagram.jpg" alt="ESP circuit diagram" width="300" />
+	<img src="esp%20circuit%20diagram.jpg" alt="ESP circuit diagram" width="600" />
 	<figcaption>ESP wiring (conceptual)</figcaption>
 	</figure>
 </p>
 
+## ESPHome configuration
+I implemented the transistor as an internal switch (no direct user control). A template button simulates the original controller's button press by turning the internal switch on for 200ms, allowing current to flow into the transistor base and actuating the pull-down. The button entity is exposed to Home Assistant to mimic the physical controller button.
+
+A sensor reports the damper state; this is also reflected physically by the built-in RGB LED.
+
+A template switch serves as the primary user interface for the damper. Its state is derived from the sensor so it reliably represents the actual damper position, and toggling the switch triggers the template button to change the damper state.
+
+[Full ESPHome builder configuration yaml](esphome-damper.yaml)
+
+<p align="center">
+    <figure style="display:inline-block; margin:0 12px; text-align:center;">
+    <img src="ha_device.png" alt="Home Assistant" height="400" />
+    <figcaption>Home Assistant view</figcaption>
+    </figure>
+</p>
 
 ## TODO
 * Replace the ESP32-S3 with a smaller ESP module (like the ESP-Super-Mini), use a compact buck converter, and fit everything into a small tidy case. This will require using an external LED indicator instead of the ESP32-S3's built-in LED.
