@@ -1,3 +1,5 @@
+
+
 # ESPHome Electra Damper
 
 ## Why?
@@ -57,7 +59,7 @@ The original controller uses a 12 V input, but ESP32 boards expect 5 V or 3.3 V.
 ### State
 The state voltage presented a challenge because ESP GPIO pins are limited to 3.3 V. I considered using an optocoupler to fully isolate the circuits, but I realized a 2.5 V "low" might still be enough to partially turn on an optocoupler LED, which would make detection unreliable.
 
-Instead, I used a simple voltage divider with 10 kΩ and 3.3 kΩ resistors. This scales the ~2.5–12 V range down to roughly 0.6–3.0 V, which is safe for the ESP. This range is prefect for the default GPIO LOW\HIGH detection.
+Instead, I used a simple voltage divider with 10 kΩ and 3.3 kΩ resistors. This scales the ~2.5–12 V range down to roughly 0.6–3.0 V, which is safe for the ESP. This range is perfect for the default GPIO LOW\HIGH detection.
 
 ### Control
 The simplest way to emulate the pull-down switch is with a transistor that connects the line to ground when activated. I used a 2N3904 NPN transistor: collector to the red wire, emitter to GND, and the base connected to a GPIO pin through a 1 kΩ resistor to protect the GPIO pin.
