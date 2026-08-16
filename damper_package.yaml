@@ -1,0 +1,60 @@
+# Damper control package
+# Include with: packages: { damper: !include damper_package.yaml }
+# Define substitutions in your main config:
+#   substitutions:
+#     damper_trigger_pin: "GPIO0"
+#     damper_state_pin: "GPIO2"
+
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: ${damper_state_pin}
+      mode: INPUT
+      inverted: True
+    name: "Damper State"
+    device_class: opening
+    id: damper_state_sensor
+
+switch:
+  # Damper trigger (internal)
+  - platform: gpio
+    pin: ${damper_trigger_pin}
+    id: damper_trigger_switch
+    name: "Damper Trigger Switch"
+    internal: true
+    
+  # Template switch for damper control
+  - platform: template
+    name: "Damper"
+    id: damper_state_switch
+    icon: "mdi:hvac"
+    optimistic: false
+    restore_mode: RESTORE_DEFAULT_OFF
+    assumed_state: false
+    lambda: |-
+      return id(damper_state_sensor).state;
+    turn_on_action:
+      - if:
+          condition:
+            binary_sensor.is_off: damper_state_sensor
+          then:
+            - button.press: toggle_damper
+    turn_off_action:
+      - if:
+          condition:
+            binary_sensor.is_on: damper_state_sensor
+          then:
+            - button.press: toggle_damper
+
+button:
+  # Damper toggle button
+  - platform: template
+    name: "Toggle AC Damper"
+    id: toggle_damper
+    icon: "mdi:air-filter"
+    internal: false
+    on_press:
+      then:
+        - switch.turn_on: damper_trigger_switch
+        - delay: 200ms
+        - switch.turn_off: damper_trigger_switch

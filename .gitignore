@@ -1,0 +1,28 @@
+# ESPHome build files
+.esphome/
+*.bin
+*.elf
+*.map
+
+# Secrets file
+secrets.yaml
+secrects.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
