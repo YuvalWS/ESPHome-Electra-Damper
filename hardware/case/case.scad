@@ -48,6 +48,10 @@ usb_x = 43.18;
 keyholes = [[15, 30], [46, 30]];
 key_head_d = 8.5; key_shank_d = 4.4; key_travel = 7;
 
+// case-ball.scad includes this file and overrides these two
+hinge = true;       // false: no hinge knuckles on the body
+back_screws = [];   // [x, y] in OpenSCAD coordinates: countersunk M3 holes through the back
+
 // hinge
 knuckle_d = 9; knuckle_w = 10; hinge_bore = 3.4;
 lug_w = 6.2; hinge_gap = 0.3;
@@ -108,7 +112,7 @@ module body() {
                 translate([in_x0 + lip_gap, y, snap_z]) rotate([0, 0, 180]) snap_ridge(snap_len, lip_gap + snap);
                 translate([in_x0 + in_w - lip_gap, y, snap_z]) snap_ridge(snap_len, lip_gap + snap);
             }
-            for (x = knuckle_x) knuckle_solid(x);
+            if (hinge) for (x = knuckle_x) knuckle_solid(x);
         }
         for (h = mount_holes) translate([P(h)[0], P(h)[1], 0.6])
             cylinder(d = screw_pilot_d, h = floor_t + standoff_h);
@@ -122,11 +126,18 @@ module body() {
             }
         }
         // hinge bore, and a nut trap on the inner end of each knuckle
+        if (hinge) {
         translate([out_x0 - 1, hinge_y, hinge_z]) rotate([0, 90, 0]) cylinder(d = hinge_bore, h = in_w + 2 * wall + 2);
         translate([knuckle_x[0] + knuckle_w - nut_t, hinge_y, hinge_z]) rotate([0, 90, 0])
             cylinder(d = nut_af / cos(30), h = nut_t + 1, $fn = 6);
         translate([knuckle_x[1] - 1, hinge_y, hinge_z]) rotate([0, 90, 0])
             cylinder(d = nut_af / cos(30), h = nut_t + 1, $fn = 6);
+        }
+        // countersunk from the inside, so the heads stay below the solder joints of the PCB
+        for (b = back_screws) translate([b[0], b[1], -1]) {
+            cylinder(d = 3.4, h = floor_t + 2);
+            translate([0, 0, 1 + floor_t - 1.7]) cylinder(d1 = 3.4, d2 = 6.8, h = 1.71);
+        }
     }
 }
 
@@ -151,7 +162,7 @@ module cover() {
         translate([usb_x - usb_plug[0] / 2, out_y0 - 1, pcb_top + usb_z - usb_plug[1] / 2])
             cube([usb_plug[0], wall + 2, usb_plug[1]]);
         // room for the necks of the hinge knuckles under the two bottom corners
-        for (x = knuckle_x) translate([x - 0.3, out_y0 - 1, floor_t - 1])
+        if (hinge) for (x = knuckle_x) translate([x - 0.3, out_y0 - 1, floor_t - 1])
             cube([knuckle_w + 0.6, wall + 1.3, neck_h - floor_t + 1.3]);
         // snap grooves
         for (y = snap_y) {
@@ -280,7 +291,7 @@ else if (part == "clash") intersection() {   // must render empty
     wall_plate();
     panned() union() { swing_plate(); tilted() { body(); cover(); } }
 }
-else {
+else if (part == "assembly") {
     color("gainsboro") wall_plate();
     panned() {
         color("lightsteelblue") swing_plate();

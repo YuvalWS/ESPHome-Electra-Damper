@@ -75,6 +75,8 @@ Read from caliper photos, good to about half a millimetre.
 | `pcb/bom.csv` | Parts list, written by the generator. |
 | `case/case.scad` | Parametric case (OpenSCAD). |
 | `case/body.stl`, `cover.stl`, `swing-plate.stl`, `wall-plate.stl` | Printable parts, already in print orientation. |
+| `case/case-ball.scad` | The same case on a ball-joint mount. Includes `case.scad`. |
+| `case/body-ball.stl`, `cover-ball.stl`, `ball-stalk.stl`, `ball-base.stl`, `tripod-adapter.stl` | Printable parts for the ball-joint version. |
 | `../damper_board.yaml` | ESPHome config for this board. |
 
 After editing `gen_pcb.py`:
@@ -121,6 +123,17 @@ Two grounds: `AC_GND` on the damper side (bottom-left block of the board, outlin
 The U4 footprint is four pads on a 2.54 mm pitch in the order -Vin, +Vin, -Vout, +Vout. Check the datasheet of the part you buy.
 
 With U3 fitted, pulling JP2 while powering from USB or from J2 isolates the ESP from the damper completely.
+
+### Is the damper's 12 V safe to use as the power input?
+
+Yes, under these conditions. The only evidence about the supply is the measurements above: its rating is not known.
+
+- **Fit U3, with JP2 on.** This is the arrangement the prototype runs on. U4 is the risky choice: it wants at least 10.8 V in, and the line was measured at 11.55 V under load.
+- **Keep the load small.** The ESP32-C3, the radar and the three LEDs are about the same load as the prototype's ESP32-S3, which pulled the line down by 0.54 V. Do not hang LED strips, relays or servos on the 5 V rail.
+- **Check once on the finished board.** With everything running and Wi-Fi active, yellow to green should stay above about 11 V, and the damper should still open and close normally.
+- **Faults are covered on the board.** A short trips the resettable fuse F1 at 500 mA; a reversed plug is blocked by D2; a voltage spike is clamped by D3.
+- **USB and 12 V together are fine** as long as D1 is fitted: it stops USB feeding back into the regulator and the damper.
+- **Flashing from a mains-powered PC:** with JP2 on, the PC's ground is joined to the damper's ground through the USB cable. That is normally harmless. To rule it out, pull JP2 first; the optocouplers keep the damper control working without it.
 
 ### Power select, JP1
 
@@ -177,6 +190,24 @@ The mount has two axes, so the radar can look across a room from an upper corner
 - **Cover:** snaps over the body's lip. The bottom wall has one wide notch for the JST plug and the 5 V cable, open towards the rim so the cover goes on with cables plugged, and a window for USB-C. Three holes for the LEDs, and a thinner patch over the SuperMini so its own LED glows through. The face over the radar is closed, 1.2 mm thick.
 
 Not checked on real hardware: the snap fit (`snap`, `lip_gap`), whether the two hinges hold their angles by friction alone, and the USB window height. The model was checked for collisions between the mount and the case over the whole pan and tilt range (`part="clash"` in `case.scad` must render empty). Expect one test print.
+
+### Alternative: ball-joint mount
+
+`case/case-ball.scad` is the same body and cover without the hinge, on a ball-and-socket mount, for aiming in one smooth movement. Print `body-ball.stl` and `cover-ball.stl` instead of `body.stl` and `cover.stl`; the two mounts do not mix.
+
+![Case on the ball mount, aimed 35 degrees right and 30 degrees down](case-ball-assembly.png)
+
+- **Base (`ball-base.stl`):** a 64 mm disc with two wall screws 48 mm apart and an opening for the wall cable. The socket is split and closed by an M3 x 16 screw and nut underneath: loosen, aim, tighten.
+- **Stalk (`ball-stalk.stl`):** a 22 mm ball on a neck that flares into a flange. Four countersunk M3 x 8 screws go through the back of the body, from the inside, into the flange. Drive an M3 x 30 screw down the middle of the stalk from the flange end before fitting it: the printed neck is weakest across its layers, and the screw is what keeps it from snapping.
+- **Reach:** about 50 degrees from straight out, in any direction. 45 degrees sideways combined with 30 degrees down is just inside that.
+- **Depth:** the case stands off the wall like a small camera: its back is 55 mm from the wall, its face about 83 mm. It needs that room so the edges clear the wall when it is aimed.
+- **Order of assembly:** screw the base to the wall first, because the case covers the wall screws afterwards. Then, with the clamp screw loose, press the ball in; it snaps past the socket's rim.
+
+A printed ball joint holds this case (it weighs little) but it does not feel like a bought one: the layer lines make the movement slightly notchy, and PLA under a clamp relaxes over months, so expect to retighten. PETG is the better material for the base. Sand the ball lightly if it grates.
+
+For a smoother joint, buy a mini camera ball head or a small security-camera wall mount with a 1/4"-20 thread, and print `tripod-adapter.stl` instead of the base and stalk. The adapter holds a 1/4"-20 nut against the back of the body and is fixed by the same four M3 x 8 screws.
+
+Not checked on real hardware: the socket fit (`ball_clr`), how hard the clamp grips, and the nut pocket of the adapter. The model was checked for collisions the same way as the hinge mount (`part="ball_clash"`).
 
 ## Firmware
 
