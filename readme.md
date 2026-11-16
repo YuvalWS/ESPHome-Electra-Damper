@@ -81,6 +81,8 @@ The configuration is split with ESPHome's **packages** feature, so the damper lo
 ├── common.yaml         # Shared: WiFi, API, OTA, captive portal, web server, time
 ├── damper_package.yaml # Damper control logic (reusable, pins via substitutions)
 ├── damper.yaml         # Standalone ESP32-S3 config with built-in RGB LED
+├── damper_board.yaml   # ESP32-C3 SuperMini on the PCB in hardware/
+├── hardware/           # PCB (Gerbers, generator script) and 3D-printed case
 └── secrets.yaml        # Credentials (gitignored)
 ```
 
@@ -149,8 +151,11 @@ A template switch serves as the primary user interface for the damper. Its state
   </figure>
 </div>
 
+## PCB and case
+The perfboard prototype has a PCB and a printed wall case that can be aimed up/down and left/right in [hardware/](hardware/README.md). The board isolates the damper's wires from the ESP with optocouplers, takes a socketed ESP32-C3 SuperMini and an LD2410 presence radar, and has a jumper to choose between the damper's 12 V, an external 5 V supply, or USB. All the measurements taken on the damper's cable are recorded there.
+
 ## TODO
 * Replace the ESP32-S3 with a smaller ESP module (like the ESP-Super-Mini), use a compact buck converter, and fit everything into a small tidy case. This will require using an external LED indicator instead of the ESP32-S3's built-in LED.
-* Turn the circuit diagram into a PCB and send it to manufacturing.
+* Build and test the PCB in `hardware/` (designed, not yet manufactured).
 * For a network-failure-proof solution, keep a physical button like the original control or add an IR receiver to support the original remote.
 * I might use the fact that I already have a powered ESP32 in a strategic spot and connect additional sensors (temperature, light, or presence).

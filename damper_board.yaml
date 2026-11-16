@@ -1,0 +1,81 @@
+# Damper controller on the PCB in hardware/ (ESP32-C3 SuperMini, socketed).
+# Pin assignment and circuit: hardware/README.md
+
+esphome:
+  name: damper-board
+  friendly_name: Damper
+  on_boot:
+    priority: 600
+    then:
+      - delay: 1s   # let the state input settle
+      - script.execute: show_damper_state
+
+substitutions:
+  damper_trigger_pin: "GPIO0"     # R1 -> U1 -> Q2 pulls the control wire low
+  damper_state_pin: "GPIO1"       # U2 output, 10k pull-up on the board
+  damper_state_inverted: "false"  # open damper = optocoupler off = pin high
+  green_led_pin: "GPIO6"
+  red_led_pin: "GPIO7"
+  ac_led_pin: "GPIO10"
+  # LD2410 radar on J7/J8, see the commented package below
+  uart_tx_pin: "GPIO21"
+  uart_rx_pin: "GPIO20"
+
+packages:
+  common: !include common.yaml
+  damper: !include damper_package.yaml
+  # The radar package lives on the feature/presence-sensor branch:
+  # presence: !include presence_package.yaml
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+output:
+  - platform: gpio
+    pin: ${green_led_pin}
+    id: green_led
+  - platform: gpio
+    pin: ${red_led_pin}
+    id: red_led
+  - platform: gpio
+    pin: ${ac_led_pin}
+    id: ac_led
+
+light:
+  # Blue LED. Not tied to anything on the device: Home Assistant switches it,
+  # for example to mirror the air conditioner's state.
+  - platform: binary
+    name: "AC Indicator"
+    output: ac_led
+    restore_mode: RESTORE_DEFAULT_OFF
+
+# SuperMini's own LED (GPIO8, lit when the pin is low): on while WiFi is up
+status_led:
+  pin:
+    number: GPIO8
+    inverted: true
+
+script:
+  - id: show_damper_state
+    then:
+      - if:
+          condition:
+            binary_sensor.is_on: damper_state_sensor
+          then:
+            - output.turn_on: green_led
+            - output.turn_off: red_led
+          else:
+            - output.turn_off: green_led
+            - output.turn_on: red_led
+
+binary_sensor:
+  - id: !extend damper_state_sensor
+    on_state:
+      then:
+        - script.execute: show_damper_state
+
+button:
+  - platform: restart
+    name: "Restart"

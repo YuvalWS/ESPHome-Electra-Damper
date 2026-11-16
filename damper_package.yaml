@@ -4,13 +4,21 @@
 #   substitutions:
 #     damper_trigger_pin: "GPIO0"
 #     damper_state_pin: "GPIO2"
+#     damper_state_inverted: "false"   # optional, see below
+
+# Defaults; the device config overrides them.
+# "true" suits the voltage divider (open damper = low pin). The PCB in
+# hardware/ reads the line through an optocoupler, where an open damper is a
+# high pin: set "false" there.
+substitutions:
+  damper_state_inverted: "true"
 
 binary_sensor:
   - platform: gpio
     pin: 
       number: ${damper_state_pin}
       mode: INPUT
-      inverted: True
+      inverted: ${damper_state_inverted}
     name: "Damper State"
     device_class: opening
     id: damper_state_sensor

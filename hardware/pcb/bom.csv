@@ -1,0 +1,42 @@
+Ref,Value,Footprint,Note
+C1,100uF 25V,CP_Radial_D6.3mm_P2.50mm,
+C2,470uF 10V,CP_Radial_D8.0mm_P3.50mm,
+C3,100uF 10V,CP_Radial_D6.3mm_P2.50mm,
+C4,100nF,C_Disc_D3.0mm_W1.6mm_P2.50mm,
+D1,1N5817,D_DO-41_SOD81_P10.16mm_Horizontal,
+D2,1N5819,D_DO-41_SOD81_P10.16mm_Horizontal,reverse polarity
+D3,P6KE15A,D_DO-15_P10.16mm_Horizontal,TVS
+D4,LED 3mm green,LED_D3.0mm,
+D5,LED 3mm red,LED_D3.0mm,
+D6,LED 3mm blue,LED_D3.0mm,
+F1,PTC 500mA,,"resettable fuse, 5 mm pitch, e.g. RXEF050"
+J1,JST S4B-PH-K,JST_PH_S4B-PH-K_1x04_P2.00mm_Horizontal,"side entry, mates with the wall cable"
+J2,5V in,"TerminalBlock_Phoenix_PT-1,5-2-3.5-H_1x02_P3.50mm_Horizontal",3.5 mm screw terminal
+J3,socket 1x8,PinSocket_1x08_P2.54mm_Vertical,for the ESP32-C3 SuperMini
+J4,socket 1x8,PinSocket_1x08_P2.54mm_Vertical,for the ESP32-C3 SuperMini
+J7,socket 1x5,PinSocket_1x05_P2.54mm_Vertical,for LD2410C
+J8,header 1x5 1.27mm,PinHeader_1x05_P1.27mm_Vertical,optional: for LD2410B
+JP1,power select,PinHeader_1x03_P2.54mm_Vertical,3-pin header + jumper
+JP2,GND link,PinHeader_1x02_P2.54mm_Vertical,2-pin header + jumper
+JP3,jumper park,,"2-pin header, optional"
+Q1,2N3904,TO-92_Inline_Wide,E B C
+Q2,2N3904,TO-92_Inline_Wide,E B C
+R1,220R,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,U1 LED current
+R2,10k,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,state pull-up
+R5,4k7,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,
+R6,10k,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,
+R7,33R,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,wire link if the damper does not react
+R8,10k,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,
+R9,10k,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,
+R10,2k2,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,
+R11,330R,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,green LED
+R12,330R,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,red LED
+R13,330R,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,blue LED
+U1,PC817C,DIP-4_W7.62mm,control optocoupler
+U2,PC817C,DIP-4_W7.62mm,state optocoupler
+U3,K7805-1000R3,Converter_DCDC_RECOM_R-78E-0.5_THT,or R-78E5.0-1.0; needs JP2 closed
+U4,B1205S-1W,,"optional: isolated SIP-4 (-Vin +Vin -Vo +Vo), INSTEAD of U3, JP2 open"
+ZD1,5V1 zener 0.5W,D_DO-35_SOD27_P7.62mm_Horizontal,BZX55C5V1
+-,ESP32-C3 SuperMini,,plugs into J3/J4
+-,HLK-LD2410C (or LD2410B),,plugs into J7 (or wired to J8)
+-,jumper 2.54 mm x2,,"JP1, JP2"

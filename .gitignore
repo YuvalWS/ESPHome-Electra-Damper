@@ -26,3 +26,7 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# KiCad local state
+*.kicad_prl
+fp-info-cache
