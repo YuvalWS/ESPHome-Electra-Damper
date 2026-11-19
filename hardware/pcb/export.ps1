@@ -21,6 +21,8 @@ Remove-Item gerbers -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory gerbers | Out-Null
 & "$kicad\kicad-cli.exe" pcb export gerbers -o gerbers/ --layers "F.Cu,B.Cu,F.Mask,B.Mask,F.SilkS,B.SilkS,Edge.Cuts" damper.kicad_pcb | Out-Null
 & "$kicad\kicad-cli.exe" pcb export drill -o gerbers/ --format excellon --excellon-separate-th damper.kicad_pcb | Out-Null
+# Record which board file these Gerbers came from, so the two can be matched later
+"damper.kicad_pcb SHA-256 $((Get-FileHash damper.kicad_pcb -Algorithm SHA256).Hash)" | Set-Content gerbers/source.txt
 Compress-Archive -Path gerbers/* -DestinationPath gerbers/damper-rev1.zip -Force
 
 # 1:1 print for the paper fit check

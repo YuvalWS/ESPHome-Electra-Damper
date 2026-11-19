@@ -13,9 +13,19 @@ Nothing here has been built yet. The board passes KiCad's design-rule check and 
 |---|-------|-----|
 | 1 | Build the control and state stages (see Circuit) on a breadboard and try them on the damper | They replace the divider and bare transistor that are known to work. Component values come from the measurements below, not from a test. |
 | 2 | Print `pcb/damper-1to1.pdf` at 100 % and press the real SuperMini, LD2410, JST header, regulator and screw terminal onto the paper | Footprints come from KiCad's library and from caliper photos, not from parts in hand. |
-| 3 | Read the pin names printed on your LD2410C and compare with J7: TX, RX, OUT, GND, VCC from the top | The order is from the datasheet as remembered. If it is reversed the module still fits: it then lies to the other side of J7. If it is different, edit `RADAR_C` in `pcb/gen_pcb.py`. |
+| 3 | Read the pin names printed on your LD2410C and compare with J7: TX, RX, OUT, GND, VCC from the top | The order matches Hi-Link's data sheet (V1.00, table 1), but clones differ. If it is reversed the module still fits: it then lies to the other side of J7. If it is different, edit `RADAR_C` in `pcb/gen_pcb.py`. |
 | 4 | With the board bare, plug the wall cable into J1 and confirm yellow lands on the pin marked Y | Yellow = pin 1 was read from a photo of the original board. |
 | 5 | Measure the height of the SuperMini's USB-C socket above the PCB once it sits in its sockets | `usb_z` and `stack_h` in `case/case.scad` assume 13.6 mm and 18 mm. |
+
+## Review, 19 November 2026
+
+An outside review of this branch raised three points. Results of checking each:
+
+| Point | Result |
+|-------|--------|
+| The editable PCB has overlapping pads and a control trace crossing a grounded pad, and the Gerber ZIP is an older layout | Not reproduced. The copper, mask, silkscreen, outline and drill files in the ZIP were identical to a fresh export of the committed `damper.kicad_pcb`. KiCad's design-rule check found no shorts, clearance errors or unconnected nets. A separate script that tests every pad against every pad and track of another net found no conflicts; the control traces come no closer than 0.30 mm to any other pad. The only overlaps on the board are the 15 courtyard overlaps between neighbouring axial parts on a 2.54 mm pitch (see Files), where the outlines overlap and the pads do not. |
+| The radar is fed through D1, below its advised 5 V | Confirmed and fixed. D1 now feeds only the ESP's 5V pin; the radar sits on the rail ahead of it (see Power select). |
+| The 200 mA isolated converter U4 cannot supply the radar | Confirmed. Hi-Link asks for more than 200 mA of supply capacity for the LD2410C. U4 is now marked for boards without the radar. |
 
 ## Measurements
 
@@ -67,7 +77,7 @@ Read from caliper photos, good to about half a millimetre.
 
 | File | What it is |
 |------|------------|
-| `pcb/gerbers/damper-rev1.zip` | Gerbers and drill files. Upload to PCBWay: 2 layers, 1.6 mm, any colour, lead-free HASL. |
+| `pcb/gerbers/damper-rev1.zip` | Gerbers and drill files. Upload to PCBWay: 2 layers, 1.6 mm, any colour, lead-free HASL. `source.txt` inside records the SHA-256 of the `damper.kicad_pcb` they were exported from. |
 | `pcb/damper.kicad_pcb` | The board, opens in KiCad 9 or newer. |
 | `pcb/gen_pcb.py` | Generates the board. There is no schematic; the netlist is the part tables in this script, and it routes the tracks itself. |
 | `pcb/export.ps1` | Runs the generator, the design-rule check, and writes the Gerbers and the PDF. |
@@ -118,7 +128,7 @@ Two grounds: `AC_GND` on the damper side (bottom-left block of the board, outlin
 | Fit | Part | JP2 "GND LINK" | Result |
 |-----|------|----------------|--------|
 | U3 (recommended) | K7805-1000R3 or R-78E5.0-1.0, fixed 5 V switching regulator | on | Same arrangement as the working prototype. The grounds are joined; the control and state wires are still buffered by the optocouplers. |
-| U4 | B1205S-1W, isolated 12 V to 5 V, SIP-4 | off | The two sides share no conductor. Limits: 200 mA, which is enough for the ESP alone and tight with the radar; and it wants 10.8-13.2 V in, while the line was measured at 11.55 V under a comparable load. |
+| U4 | B1205S-1W, isolated 12 V to 5 V, SIP-4 | off | The two sides share no conductor. **Not with the radar:** it delivers 200 mA, and Hi-Link asks for a supply that can deliver more than 200 mA for the LD2410C alone, before the ESP's Wi-Fi peaks. It also wants 10.8-13.2 V in, while the line was measured at 11.55 V under a comparable load. Use it only on a board without the radar. |
 
 The U4 footprint is four pads on a 2.54 mm pitch in the order -Vin, +Vin, -Vout, +Vout. Check the datasheet of the part you buy.
 
@@ -128,11 +138,11 @@ With U3 fitted, pulling JP2 while powering from USB or from J2 isolates the ESP 
 
 Yes, under these conditions. The only evidence about the supply is the measurements above: its rating is not known.
 
-- **Fit U3, with JP2 on.** This is the arrangement the prototype runs on. U4 is the risky choice: it wants at least 10.8 V in, and the line was measured at 11.55 V under load.
+- **Fit U3, with JP2 on.** This is the arrangement the prototype runs on. U4 is the risky choice: it wants at least 10.8 V in, the line was measured at 11.55 V under load, and its 200 mA is too little for the radar.
 - **Keep the load small.** The ESP32-C3, the radar and the three LEDs are about the same load as the prototype's ESP32-S3, which pulled the line down by 0.54 V. Do not hang LED strips, relays or servos on the 5 V rail.
 - **Check once on the finished board.** With everything running and Wi-Fi active, yellow to green should stay above about 11 V, and the damper should still open and close normally.
 - **Faults are covered on the board.** A short trips the resettable fuse F1 at 500 mA; a reversed plug is blocked by D2; a voltage spike is clamped by D3.
-- **USB and 12 V together are fine** as long as D1 is fitted: it stops USB feeding back into the regulator and the damper.
+- **USB and 12 V together are fine** as long as D1 is fitted: it stops USB feeding back into the rail, the regulator and the damper.
 - **Flashing from a mains-powered PC:** with JP2 on, the PC's ground is joined to the damper's ground through the USB cable. That is normally harmless. To rule it out, pull JP2 first; the optocouplers keep the damper control working without it.
 
 ### Power select, JP1
@@ -143,7 +153,11 @@ Yes, under these conditions. The only evidence about the supply is the measureme
 | `EXT` (bottom two pins) | 5 V from the screw terminal J2 |
 | parked on JP3 | none: USB-C on the ESP |
 
-D1 (1N5817) follows the jumper so USB cannot feed back into the regulator or J2. It costs about 0.3 V, so the 5 V rail sits near 4.7 V. If the radar misbehaves, replace D1 with a wire link and never plug USB in while the jumper is on `AC` or `EXT`.
+The jumper's middle pin is the 5 V rail. The radar (J7, J8), J11 and the bulk capacitors C2-C4 sit on it directly, so the radar gets the regulator's full 5 V; Hi-Link rates its VCC at 5-12 V, 5 V advised.
+
+D1 (1N5817) feeds the ESP's 5V pin from the rail and blocks the other way, so a USB cable cannot feed back into the rail, the regulator or J2. The ESP gets about 4.7 V, which its own 3.3 V regulator handles. Do not replace D1 with a wire link.
+
+With the jumper parked, only USB powers the board: the ESP runs, the rail and the radar are off. To try the radar on the bench, put the jumper on `EXT` and feed 5 V into J2; USB can stay plugged in.
 
 ### ESP32-C3 SuperMini
 
@@ -165,7 +179,7 @@ Plugs into two 1x8 sockets (J3, J4), USB-C towards the bottom edge. There is no 
 - **J5, J6:** the ESP's pins, 1:1, beside each socket. 5V and GND are not in J5 (the screw terminal is in the way); take them from J11.
 - **J9 I2C:** 3V3, GND, SDA (GPIO4), SCL (GPIO5).
 - **J10 AUX:** 3V3, GND, GPIO3. For an IR receiver or a button.
-- **J11:** 5 V, GND.
+- **J11:** 5 V rail, GND. Unpowered while the jumper is parked.
 - **J1B:** the four damper wires again on a 2.54 mm pitch, for a soldered pigtail in place of the JST header.
 - **PROTO:** twelve unconnected pads.
 

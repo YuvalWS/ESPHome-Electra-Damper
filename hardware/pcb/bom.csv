@@ -3,7 +3,7 @@ C1,100uF 25V,CP_Radial_D6.3mm_P2.50mm,
 C2,470uF 10V,CP_Radial_D8.0mm_P3.50mm,
 C3,100uF 10V,CP_Radial_D6.3mm_P2.50mm,
 C4,100nF,C_Disc_D3.0mm_W1.6mm_P2.50mm,
-D1,1N5817,D_DO-41_SOD81_P10.16mm_Horizontal,
+D1,1N5817,D_DO-41_SOD81_P10.16mm_Horizontal,rail to the ESP's 5V pin; blocks USB back-feed
 D2,1N5819,D_DO-41_SOD81_P10.16mm_Horizontal,reverse polarity
 D3,P6KE15A,D_DO-15_P10.16mm_Horizontal,TVS
 D4,LED 3mm green,LED_D3.0mm,
@@ -35,7 +35,7 @@ R13,330R,R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal,blue LED
 U1,PC817C,DIP-4_W7.62mm,control optocoupler
 U2,PC817C,DIP-4_W7.62mm,state optocoupler
 U3,K7805-1000R3,Converter_DCDC_RECOM_R-78E-0.5_THT,or R-78E5.0-1.0; needs JP2 closed
-U4,B1205S-1W,,"optional: isolated SIP-4 (-Vin +Vin -Vo +Vo), INSTEAD of U3, JP2 open"
+U4,B1205S-1W,,"optional, NOT with the radar (200 mA): isolated SIP-4 (-Vin +Vin -Vo +Vo), INSTEAD of U3, JP2 open"
 ZD1,5V1 zener 0.5W,D_DO-35_SOD27_P7.62mm_Horizontal,BZX55C5V1
 -,ESP32-C3 SuperMini,,plugs into J3/J4
 -,HLK-LD2410C (or LD2410B),,plugs into J7 (or wired to J8)

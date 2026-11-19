@@ -35,7 +35,7 @@ SILK = pcbnew.F_SilkS
 AC_X, AC_Y, GAP = 22.36, 26.0, 1.0
 AC_NETS = {"AC_GND", "12V_IN", "12V_F", "12V_P", "CTRL", "CTRL_Q", "STATE", "ST_Z",
            "Q1_B", "Q1_C", "Q2_B", "U1_C", "U2_A"}
-POWER_NETS = {"12V_IN", "12V_F", "12V_P", "5V_REG", "5V_SEL", "5V_EXT", "+5V"}
+POWER_NETS = {"12V_IN", "12V_F", "12V_P", "5V_REG", "5V_EXT", "+5V", "5V_ESP"}
 POUR_NETS = {"GND", "AC_GND"}   # connected by the copper pours, not routed
 
 # JST PH pin order of the wall cable, pin 1 first: yellow, green, red, black
@@ -160,9 +160,11 @@ for i, (x, y) in enumerate(MOUNT):
 # Socketed, USB-C at the bottom board edge. Rows 15.24 mm apart. Seen from the
 # component side with USB down, pins from the antenna end to the USB end:
 ESP_XL, ESP_XR, ESP_Y0, P = 35.56, 50.80, 49.53, 2.54
-ESP_L = ["IO0", "IO1", "IO2", "IO3", "IO4", "+3V3", "GND", "+5V"]
+# The ESP's 5V pin is fed through D1 so a USB cable cannot back-feed the rail;
+# the radar and J11 sit on the rail itself, ahead of the diode drop.
+ESP_L = ["IO0", "IO1", "IO2", "IO3", "IO4", "+3V3", "GND", "5V_ESP"]
 ESP_R = ["IO21", "IO20", "IO10", "IO9", "IO8", "IO7", "IO6", "IO5"]
-LABEL = {"+3V3": "3V3", "+5V": "5V", "GND": "G"}
+LABEL = {"+3V3": "3V3", "5V_ESP": "5V", "GND": "G"}
 lib("J3", "socket 1x8", "Connector_PinSocket_2.54mm", "PinSocket_1x08_P2.54mm_Vertical",
     ESP_XL, ESP_Y0, 0, ESP_L, "for the ESP32-C3 SuperMini")
 lib("J4", "socket 1x8", "Connector_PinSocket_2.54mm", "PinSocket_1x08_P2.54mm_Vertical",
@@ -221,7 +223,7 @@ lib("ZD1", "5V1 zener 0.5W", "Diode_THT", "D_DO-35_SOD27_P7.62mm_Horizontal", 13
 # --------------------------------------------------------------------------- 12 V -> 5 V, fit ONE
 pads("U4", "B1205S-1W", [(1, 19.05, 46.99, "AC_GND"), (2, 21.59, 46.99, "12V_P"),
                          (3, 24.13, 46.99, "GND"), (4, 26.67, 46.99, "5V_REG")], 1.0, 1.7,
-     note="optional: isolated SIP-4 (-Vin +Vin -Vo +Vo), INSTEAD of U3, JP2 open")
+     note="optional, NOT with the radar (200 mA): isolated SIP-4 (-Vin +Vin -Vo +Vo), INSTEAD of U3, JP2 open")
 rect(17.1, 41.9, 28.6, 48.1)
 lib("U3", "K7805-1000R3", "Converter_DCDC", "Converter_DCDC_RECOM_R-78E-0.5_THT", 19.05, 59.69, 0,
     ["12V_P", "AC_GND", "5V_REG"], "or R-78E5.0-1.0; needs JP2 closed")
@@ -230,11 +232,11 @@ lib("JP2", "GND link", HDR, "PinHeader_1x02_P2.54mm_Vertical", 21.59, 50.80, 90,
 
 # --------------------------------------------------------------------------- 5 V selection
 lib("JP1", "power select", HDR, "PinHeader_1x03_P2.54mm_Vertical", 30.48, 35.56, 0,
-    ["5V_REG", "5V_SEL", "5V_EXT"], "3-pin header + jumper")
+    ["5V_REG", "+5V", "5V_EXT"], "3-pin header + jumper")
 pads("JP3", "jumper park", [("", 33.02, 35.56, None), ("", 33.02, 38.10, None)],
      note="2-pin header, optional")
-lib("D1", "1N5817", "Diode_THT", "D_DO-41_SOD81_P10.16mm_Horizontal", 45.72, 43.18, 180,
-    {"1": "+5V", "2": "5V_SEL"}, "")
+lib("D1", "1N5817", "Diode_THT", "D_DO-41_SOD81_P10.16mm_Horizontal", 35.56, 43.18, 0,
+    {"1": "5V_ESP", "2": "+5V"}, "rail to the ESP's 5V pin; blocks USB back-feed")
 lib("C2", "470uF 10V", "Capacitor_THT", "CP_Radial_D8.0mm_P3.50mm", 38.10, 31.75, 0,
     ["+5V", "GND"], "")
 lib("J2", "5V in", "TerminalBlock_Phoenix", "TerminalBlock_Phoenix_PT-1,5-2-3.5-H_1x02_P3.50mm_Horizontal",
